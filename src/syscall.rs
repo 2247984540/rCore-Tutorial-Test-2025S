@@ -5,7 +5,7 @@ use super::{Stat, TimeVal};
 pub const SYSCALL_OPENAT: usize = 56;
 pub const SYSCALL_CLOSE: usize = 57;
 pub const SYSCALL_READ: usize = 63;
-pub const SYSCALL_WRITE: usize = 64;
+pub const  SYSCALL_WRITE: usize = 64;
 pub const SYSCALL_UNLINKAT: usize = 35;
 pub const SYSCALL_LINKAT: usize = 37;
 pub const SYSCALL_FSTAT: usize = 80;
@@ -31,7 +31,7 @@ pub const SYSCALL_MAIL_READ: usize = 401;
 pub const SYSCALL_MAIL_WRITE: usize = 402;
 pub const SYSCALL_DUP: usize = 24;
 pub const SYSCALL_PIPE: usize = 59;
-pub const SYSCALL_TRACE: usize = 410;
+pub const   SYSCALL_TRACE: usize = 410;
 pub const SYSCALL_THREAD_CREATE: usize = 460;
 pub const SYSCALL_WAITTID: usize = 462;
 pub const SYSCALL_MUTEX_CREATE: usize = 463;
@@ -44,6 +44,7 @@ pub const SYSCALL_SEMAPHORE_DOWN: usize = 470;
 pub const SYSCALL_CONDVAR_CREATE: usize = 471;
 pub const SYSCALL_CONDVAR_SIGNAL: usize = 472;
 pub const SYSCALL_CONDVAR_WAIT: usize = 473;
+pub const SYSCALL_INIT_COUNT: usize = 110;//自己添加的在用户态用来初始化全局变量
 
 pub fn syscall(id: usize, args: [usize; 3]) -> isize {
     let mut ret: isize;
@@ -211,7 +212,10 @@ pub fn sys_pipe(pipe: &mut [usize]) -> isize {
 }
 
 pub fn sys_trace(trace_request: usize, id: usize, data: usize) -> isize {
+    //框架默认是调用syscall(SYSCALL_TRACE, [trace_request, id, data])
     syscall(SYSCALL_TRACE, [trace_request, id, data])
+    
+    //我是否应该注释上面的调用,直接在此实现我的逻辑
 }
 
 pub fn sys_thread_create(entry: usize, arg: usize) -> isize {
