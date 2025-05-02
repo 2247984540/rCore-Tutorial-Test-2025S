@@ -12,9 +12,10 @@ pub fn write_const(var: &u8, new_val: u8) {
     trace_write(var as *const _, new_val);
 }
 
-pub fn init_count() -> usize {
+////系统调用:传入一个系统调用号,通过传入的id来将对应的系统调用计数器清零
+pub fn init_count(id : usize) -> usize {
     let mut ret: usize;
-    let args:[usize ; 3] =[0, 0, 0];
+    let args:[usize ; 3] =[id, 0, 0];
     unsafe {
         core::arch::asm!(
             "ecall",
@@ -29,21 +30,23 @@ pub fn init_count() -> usize {
 
 #[no_mangle]
 pub fn main() -> usize {
-    init_count();
+    // init_count();//系统调用:初始化所有的调用计数器
     
     let t1 = get_time() as usize;
    
     get_time();
-    
-    // sleep(500);
     // assert_eq!(-1, count_syscall(SYSCALL_WRITE));
+    // assert_eq!(-1, count_syscall(SYSCALL_EXIT));
+    sleep(500);
     let t2 = get_time() as usize;
     let t3 = get_time() as usize;
     assert!(3 <= count_syscall(SYSCALL_GETTIMEOFDAY));  
     // 注意这次 sys_trace 调用本身也计入
-    assert_eq!(2, count_syscall(SYSCALL_TRACE));    
+    assert_eq!(2, count_syscall(SYSCALL_TRACE));
+    init_count(SYSCALL_WRITE as usize);    
     assert_eq!(0, count_syscall(SYSCALL_WRITE));   
-    assert!(0 < count_syscall(SYSCALL_YIELD));  
+    assert!(0 < count_syscall(SYSCALL_YIELD)); 
+    init_count(SYSCALL_EXIT as usize); 
     assert_eq!(0, count_syscall(SYSCALL_EXIT)); 
 
     // 想想为什么 write 调用是两次
